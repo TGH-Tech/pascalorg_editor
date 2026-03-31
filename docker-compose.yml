@@ -1,0 +1,36 @@
+services:
+  editor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    image: pascalorg-editor:latest
+    container_name: pascalorg-editor
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+
+      # ── Required ──────────────────────────────────────────────────────────
+      POSTGRES_URL:              ${POSTGRES_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      BETTER_AUTH_SECRET:        ${BETTER_AUTH_SECRET}
+      NEXT_PUBLIC_SUPABASE_URL:  ${NEXT_PUBLIC_SUPABASE_URL}
+
+      # ── Optional ──────────────────────────────────────────────────────────
+      BETTER_AUTH_URL:                  ${BETTER_AUTH_URL:-}
+      GOOGLE_CLIENT_ID:                 ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET:             ${GOOGLE_CLIENT_SECRET:-}
+      RESEND_API_KEY:                   ${RESEND_API_KEY:-}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY:    ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:  ${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
